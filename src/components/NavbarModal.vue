@@ -8,7 +8,7 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-          <RouterLink to="/reception" class="nav-link">前台購物</RouterLink>
+          <RouterLink to="/" class="nav-link">前台購物</RouterLink>
           <RouterLink to="/product" class="nav-link">後台產品列</RouterLink>
           <RouterLink to="/order" class="nav-link">後台訂單</RouterLink>
           <RouterLink to="/voucher" class="nav-link">優惠卷</RouterLink>
