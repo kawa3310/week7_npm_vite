@@ -1,4 +1,5 @@
 <template>
+  <VueLoading :active="isloading" :z-index="1060"></VueLoading>
   <div class="container">
     <div class="text-end mt-4">
       <table class="table mt-4">
@@ -16,10 +17,14 @@
           <template  v-for="item in orderData" :key="item.id">
             <tr v-if="orderData.length" :class=" { 'text-secondary': !item.is_paid } ">
             <td>{{ date(item.create_at) }}</td>
-            <td>{{ item.user.email }}</td>
-            <ul class="list-unstyled">
-              <li v-for="item in item.products" :key="item.id">{{ item.product.title }}</li>
-            </ul>
+            <td>
+              <span v-text="item.user.email" v-if="item.user"></span>
+            </td>
+            <td>
+              <ul class="list-unstyled">
+                <li v-for="item in item.products" :key="item.id">{{ item.product.title }}</li>
+              </ul>
+            </td>
             <td>{{ item.total }}</td>
             <td>
               <div class="form-check form-switch">
@@ -55,9 +60,10 @@
 <script>
 import axios from 'axios';
 import 'bootstrap/scss/bootstrap.scss';
-import PaginationModal from '../../components/paginationmodal.vue';
-import OrderModal from '../../components/OrderModal.vue';
-import DelProductModal from '../../components/DelProductModal.vue';
+import Swal from 'sweetalert2';
+import PaginationModal from '@/components/paginationmodal.vue';
+import OrderModal from '@/components/OrderModal.vue';
+import DelProductModal from '@/components/DelProductModal.vue';
 const { VITE_URL, VITE_PATH } = import.meta.env;
 export default {
   data () {
@@ -65,8 +71,9 @@ export default {
       pagination: {},
       orderData: {},
       tempOrder: {},
-      pages: 1,
-      isNew: false
+      pages: {},
+      isNew: false,
+      isloading: false
     };
   },
   methods: {
@@ -76,19 +83,35 @@ export default {
           this.getOrders();
         })
         .catch((err) => {
-          alert(err.response.data.message);
           this.$router.push('/login');
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
         });
     },
     getOrders (page = 1) {
+      this.isloading = true;
       axios.get(`${VITE_URL}/api/${VITE_PATH}/admin/orders?page=${page}`)
         .then((res) => {
+          this.isloading = false;
           this.orderData = res.data.orders;
-          this.page = res.data.pagination;
-          console.log(this.orderData);
+          this.pages = res.data.pagination;
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.isloading = true;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
         });
     },
     openModel (states, item) {
@@ -104,31 +127,65 @@ export default {
     },
     addOrderStates (item) {
       this.isNew = true;
+      this.isloading = true;
       const paid = {
         is_paid: item.is_paid
       };
       axios.put(`${VITE_URL}/api/${VITE_PATH}/admin/order/${item.id}`, { data: paid })
         .then((res) => {
           this.isNew = false;
-          alert(res.data.message);
+          this.isloading = false;
           this.$refs.orderModal.modalClose();
           this.getOrders();
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'success',
+            title: '編輯成功'
+          });
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
         });
     },
     delOrder () {
       this.isNew = true;
+      this.isloading = true;
       axios.delete(`${VITE_URL}/api/${VITE_PATH}/admin/order/${this.tempOrder.id}`)
         .then((res) => {
           this.isNew = false;
-          alert(res.data.message);
+          this.isloading = false;
           this.$refs.deModal.modalClose();
           this.getOrders();
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'success',
+            title: '刪除成功'
+          });
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
         });
     },
     date (time) {

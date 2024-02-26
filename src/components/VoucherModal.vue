@@ -78,14 +78,10 @@ export default {
   },
   mounted () {
     this.voucher = new Modal(this.$refs.VoucherModal);
-    this.emitVoucher = this.tempVoucher;
   },
   watch: {
-    tempProducts () {
+    tempVoucher () {
       this.emitVoucher = this.tempVoucher;
-      const dateAndTime = new Date(this.tempVoucher.due_date * 1000)
-        .toISOString().split('T');
-      [this.due_date] = dateAndTime;
     },
     due_date () {
       this.emitVoucher.due_date = Math.floor(new Date(this.due_date) / 1000);

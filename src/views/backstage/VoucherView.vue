@@ -1,4 +1,5 @@
 <template>
+  <VueLoading :active="isloading" :z-index="1060"></VueLoading>
   <div class="container">
     <div class="text-end mt-4">
       <button class="btn btn-primary" @click="openModel('new', item)">
@@ -36,20 +37,22 @@
                   刪除
                 </button>
                 </div>
-                <!-- ssd -->
               </td>
             </tr>
         </tbody>
       </table>
     </div>
   </div>
+  <PaginationModal :pages="pages" @emit-Pages="getVoucherData"></PaginationModal>
   <VoucherModal :is-New="isNew" :temp-Voucher="tempVoucher" @edit-Voucher="editVoucher" ref="voucher"></VoucherModal>
   <DelProductModal @del-item="delProduct" :temp-Voucher="tempVoucher" ref="deModal"></DelProductModal>
 </template>
 <script>
 import axios from 'axios';
-import VoucherModal from '../../components/VoucherModal.vue';
-import DelProductModal from '../../components/DelProductModal.vue';
+import Swal from 'sweetalert2';
+import VoucherModal from '@/components/VoucherModal.vue';
+import DelProductModal from '@/components/DelProductModal.vue';
+import PaginationModal from '../../components/PaginationModal.vue';
 const { VITE_URL, VITE_PATH } = import.meta.env;
 export default {
   data () {
@@ -61,7 +64,9 @@ export default {
         percent: 100,
         code: ''
       },
-      isNew: false
+      isNew: false,
+      pages: {},
+      isloading: false
     };
   },
   methods: {
@@ -71,18 +76,34 @@ export default {
           this.getVoucherData();
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
           this.$router.push('/login');
         });
     },
     getVoucherData () {
+      this.isloading = true;
       axios.get(`${VITE_URL}/api/${VITE_PATH}/admin/coupons`)
         .then((res) => {
+          this.isloading = false;
           this.voucher = res.data.coupons;
-          console.log(this.voucher);
+          this.pages = res.data.pagination;
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            title: err.response.data.message
+          });
         });
     },
     openModel (isNew, item) {
@@ -109,25 +130,59 @@ export default {
         url = `${VITE_URL}/api/${VITE_PATH}/admin/coupon/${this.tempVoucher.id}`;
         http = 'put';
       }
+      this.isloading = true;
       axios[http](url, { data: this.tempVoucher })
         .then((res) => {
-          alert(res.data.message);
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'success',
+            title: '編輯成功'
+          });
+          this.isloading = false;
           this.$refs.voucher.modalClose();
           this.getVoucherData();
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
         });
     },
     delProduct () {
+      this.isloading = true;
       axios.delete(`${VITE_URL}/api/${VITE_PATH}/admin/coupon/${this.tempVoucher.id}`)
         .then((res) => {
-          alert(res.data.message);
+          this.isloading = false;
           this.$refs.deModal.modalClose();
           this.getVoucherData();
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'success',
+            title: '已刪除'
+          });
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
         });
     }
   },
@@ -138,7 +193,8 @@ export default {
   },
   components: {
     VoucherModal,
-    DelProductModal
+    DelProductModal,
+    PaginationModal
   }
 };
 </script>

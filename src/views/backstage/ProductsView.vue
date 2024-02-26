@@ -1,4 +1,5 @@
 <template>
+  <VueLoading :active="isloading" :z-index="1060"></VueLoading>
   <div class="container">
     <div class="text-end mt-4">
       <button class="btn btn-primary" @click="openModel('new')">
@@ -66,9 +67,10 @@
 <script>
 import axios from 'axios';
 import 'bootstrap/scss/bootstrap.scss';
-import PaginationModal from '../../components/PaginationModal.vue';
-import ProductModal from '../../components/ProductModal.vue';
-import DelProductModal from '../../components/DelProductModal.vue';
+import Swal from 'sweetalert2';
+import PaginationModal from '@/components/PaginationModal.vue';
+import ProductModal from '@/components/ProductModal.vue';
+import DelProductModal from '@/components/DelProductModal.vue';
 const { VITE_URL, VITE_PATH } = import.meta.env;
 export default {
   data () {
@@ -78,6 +80,7 @@ export default {
       products: [],
       pages: {},
       isNew: false,
+      isloading: false,
       tempProducts: {
         imagesUrl: []
       }
@@ -88,20 +91,45 @@ export default {
       axios.post(`${VITE_URL}/api/user/check`)
         .then((res) => {
           this.getData();
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'success',
+            title: '已登入'
+          });
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
           this.$router.push('/login');
         });
     },
     getData (page = 1) {
+      this.isloading = true;
       axios.get(`${VITE_URL}/api/${VITE_PATH}/admin/products?page=${page}`)
         .then((res) => {
+          this.isloading = false;
           this.products = res.data.products;
           this.pages = res.data.pagination;
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
         });
     },
     openModel (states, item) {
@@ -121,14 +149,31 @@ export default {
       }
     },
     delProduct () {
+      this.isloading = true;
       axios.delete(`${VITE_URL}/api/${VITE_PATH}/admin/product/${this.tempProducts.id}`)
         .then((res) => {
-          alert(res.data.message);
+          this.isloading = false;
           this.$refs.deModal.modalClose();
           this.getData();
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'success',
+            title: '已刪除'
+          });
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
         });
     },
     addProduct () {
@@ -138,14 +183,31 @@ export default {
         url = `${VITE_URL}/api/${VITE_PATH}/admin/product/${this.tempProducts.id}`;
         http = 'put';
       }
+      this.isloading = true;
       axios[http](url, { data: this.tempProducts })
         .then((res) => {
-          alert(res.data.message);
+          this.isloading = false;
           this.$refs.pduct.modalClose();
           this.getData();
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'success',
+            title: '編輯成功'
+          });
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
         });
     },
     addImg () {

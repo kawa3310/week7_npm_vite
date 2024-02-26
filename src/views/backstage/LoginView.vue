@@ -32,6 +32,7 @@
 </template>
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 const { VITE_URL } = import.meta.env;
 export default {
   data () {
@@ -48,11 +49,17 @@ export default {
         .then((res) => {
           const { token, expired } = res.data;
           document.cookie = `kawaToken=${token}; expires = ${new Date(expired)}; path=/`;
-          alert('登入成功');
           this.$router.push('/product');
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
         });
     }
   }

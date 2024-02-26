@@ -1,3 +1,4 @@
+import './assets/main.css';
 import 'bootstrap/scss/bootstrap.scss';
 
 import { createApp } from 'vue';
@@ -5,12 +6,16 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
 import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/css/index.css';
+
 import {
   Field, Form, ErrorMessage, defineRule, configure
 } from 'vee-validate';
 import * as AllRules from '@vee-validate/rules';
 import { localize, setLocale } from '@vee-validate/i18n';
 import zhTW from '@vee-validate/i18n/dist/locale/zh_TW.json';
+
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 import { currency, date } from '@/methods/date';
 

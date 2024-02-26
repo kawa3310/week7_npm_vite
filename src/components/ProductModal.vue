@@ -124,12 +124,14 @@
 import axios from 'axios';
 import 'bootstrap/scss/bootstrap.scss';
 import { Modal } from 'bootstrap';
+import Swal from 'sweetalert2';
 const { VITE_URL, VITE_PATH } = import.meta.env;
 export default {
   data () {
     return {
       prodModal: null,
-      emitProduct: {}
+      emitProduct: {},
+      status: {}
     };
   },
   props: ['tempProducts', 'addProduct', 'addImg', 'isNew'],
@@ -144,13 +146,23 @@ export default {
       const file = this.$refs.fileInput.files[0];
       const formData = new FormData();
       formData.append('file-to-upload', file);
+      this.status.flie = true;
       axios.post(`${VITE_URL}/api/${VITE_PATH}/admin/upload`, formData)
         .then((res) => {
+          this.status.flie = false;
           this.emitProduct.imageUrl = res.data.imageUrl;
           this.$refs.fileInput.value = '';
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.status.flie = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: err.response.data.message
+          });
         });
     }
   },

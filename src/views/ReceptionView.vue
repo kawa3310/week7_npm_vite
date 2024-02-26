@@ -1,4 +1,5 @@
 <template>
+<VueLoading :active="isloading" :z-index="1060"></VueLoading>
 <div class="container">
           <div class="mt-4">
               <!-- 產品Modal -->
@@ -33,15 +34,15 @@
                           <td>
                               <div class="btn-group btn-group-sm">
                                   <button type="button" class="btn btn-outline-secondary" @click="getData(item.id)"
-                                      :disabled="loadingState.isloading === item.id || !item.is_enabled">
+                                      :disabled="loadingState.isId === item.id || !item.is_enabled">
                                       <i class="fas fa-spinner fa-pulse"
-                                          v-if="loadingState.isloading === item.id"></i>
+                                          v-if="loadingState.isId === item.id"></i>
                                       查看更多
                                   </button>
                                   <button type="button" class="btn btn-outline-danger" @click="addProduct(item.id)"
-                                      :disabled="loadingState.isloading === item.id || !item.is_enabled">
+                                      :disabled="loadingState.isId === item.id || !item.is_enabled">
                                       <i class="fas fa-spinner fa-pulse"
-                                          v-if="loadingState.isloading === item.id"></i>
+                                          v-if="loadingState.isId === item.id"></i>
                                       加到購物車
                                   </button>
                               </div>
@@ -67,9 +68,9 @@
                               <tr v-for="cart in cart.carts" :key="cart.id">
                                   <td>
                                       <button type="button" class="btn btn-outline-danger btn-sm"
-                                          @click="delCart(cart.id)" :disabled="loadingState.isloading === cart.id">
+                                          @click="delCart(cart.id)" :disabled="loadingState.isId === cart.id">
                                           <i class="fas fa-spinner fa-pulse"
-                                              v-if="loadingState.isloading === cart.id"></i>
+                                              v-if="loadingState.isId === cart.id"></i>
                                           x
                                       </button>
                                   </td>
@@ -84,7 +85,7 @@
                                           <div class="input-group mb-3">
                                               <input min="1" type="number" class="form-control" v-model.number="cart.qty"
                                                   @blur="updateStatus(cart)"
-                                                  :disabled="loadingState.isloading === cart.id">
+                                                  :disabled="loadingState.isId === cart.id">
                                               <span class="input-group-text" id="basic-addon2">{{ cart.product.unit
                                                   }}</span>
                                           </div>
@@ -158,14 +159,16 @@
 
 <script>
 import axios from 'axios';
-import UserProductsModal from '../components/UserProductsModal.vue';
+import Swal from 'sweetalert2';
+import UserProductsModal from '@/components/UserProductsModal.vue';
 const { VITE_URL, VITE_PATH } = import.meta.env;
 export default {
   data () {
     return {
       loadingState: {
-        isloading: ''
+        isId: ''
       },
+      isloading: false,
       products: [],
       product: {},
       cart: {},
@@ -184,104 +187,217 @@ export default {
   },
   methods: {
     getDatas () {
+      this.isloading = true;
       axios.get(`${VITE_URL}/api/${VITE_PATH}/products`)
         .then((res) => {
+          this.isloading = false;
           this.products = res.data.products;
         })
         .catch((error) => {
-          alert(error.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: error.response.data.message
+          });
         });
     },
     getData (id) {
-      this.loadingState.isloading = id;
+      this.isloading = true;
+      this.loadingState.isId = id;
       axios.get(`${VITE_URL}/api/${VITE_PATH}/product/${id}`)
         .then((response) => {
-          this.loadingState.isloading = '';
+          this.isloading = false;
+          this.loadingState.isId = '';
           this.product = response.data.product;
           this.$refs.modal.openModal();
         })
         .catch((error) => {
-          alert(error.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: error.response.data.message
+          });
         });
     },
     getCart () {
+      this.isloading = true;
       axios.get(`${VITE_URL}/api/${VITE_PATH}/cart`)
         .then((res) => {
+          this.isloading = false;
           this.cart = res.data.data;
         })
         .catch((error) => {
-          alert(error.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: error.response.data.message
+          });
         });
     },
     addProduct (id, qty = 1) {
-      this.loadingState.isloading = id;
+      this.loadingState.isId = id;
       const cart = {
         product_id: id,
         qty
       };
-
+      this.isloading = true;
       axios.post(`${VITE_URL}/api/${VITE_PATH}/cart`, { data: cart })
         .then((res) => {
-          alert(res.data.message);
-          this.loadingState.isloading = '';
+          this.isloading = false;
+          this.loadingState.isId = '';
           this.$refs.modal.closeModal();
           this.getCart();
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'success',
+            title: '已加入購物車'
+          });
         })
         .catch((error) => {
-          alert(error.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: error.response.data.message
+          });
         });
     },
     delCart (id) {
-      this.loadingState.isloading = id;
+      this.isloading = true;
+      this.loadingState.isId = id;
       axios.delete(`${VITE_URL}/api/${VITE_PATH}/cart/${id}`)
         .then((res) => {
-          this.loadingState.isloading = '';
-          alert(res.data.message);
+          this.isloading = false;
+          this.loadingState.isId = '';
           this.getCart();
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'success',
+            title: '已刪除'
+          });
         })
         .catch((error) => {
-          alert(error.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: error.response.data.message
+          });
         });
     },
     delItems () {
+      this.isloading = true;
       axios.delete(`${VITE_URL}/api/${VITE_PATH}/carts`)
         .then((res) => {
-          alert(res.data.message);
+          this.isloading = false;
           this.getCart();
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'success',
+            title: '已刪除全部購物車'
+          });
         })
         .catch((error) => {
-          alert(error.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: error.response.data.message
+          });
         });
     },
     updateStatus (carts) {
-      this.loadingState.isloading = carts.id;
+      this.isloading = true;
+      this.loadingState.isId = carts.id;
       const cart = {
         product_id: carts.product_id,
         qty: carts.qty
       };
       axios.put(`${VITE_URL}/api/${VITE_PATH}/cart/${carts.id}`, { data: cart })
         .then((res) => {
-          this.loadingState.isloading = '';
+          this.isloading = false;
+          this.loadingState.isId = '';
           this.getCart();
         })
         .catch((error) => {
-          alert(error.response.data.message);
+          this.isloading = false;
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+            title: error.response.data.message
+          });
         });
     },
     addOrder () {
       if (this.cart.carts.length === 0) {
-        alert('你的購物車是空的，無法送出訂單');
+        Swal.fire({
+          position: 'center',
+          icon: 'warning',
+          title: '你的購物車是空的，無法送出訂單',
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else {
         const order = this.form;
+        this.isloading = true;
         axios.post(`${VITE_URL}/api/${VITE_PATH}/order`, { data: order })
           .then((res) => {
-            alert(res.data.message);
+            this.isloading = false;
             this.$refs.form.resetForm();
-            this.loadingState.isloading = '';
+            this.loadingState.isId = '';
             this.getCart();
+            Swal.fire({
+              toast: true,
+              position: 'center',
+              showConfirmButton: false,
+              timer: 1500,
+              icon: 'success',
+              title: '訂單已送出'
+            });
           })
           .catch((error) => {
-            alert(error.response.data.message);
+            this.isloading = false;
+            Swal.fire({
+              toast: true,
+              position: 'center',
+              showConfirmButton: false,
+              timer: 1500,
+              icon: 'error',
+              title: error.response.data.message
+            });
           });
       }
     }
