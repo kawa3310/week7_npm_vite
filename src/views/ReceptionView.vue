@@ -311,29 +311,37 @@ export default {
     },
     delItems () {
       this.isloading = true;
-      axios.delete(`${VITE_URL}/api/${VITE_PATH}/carts`)
-        .then((res) => {
-          this.isloading = false;
-          this.getCart();
-          Swal.fire({
-            toast: true,
-            position: 'center',
-            showConfirmButton: false,
-            timer: 1500,
-            icon: 'success',
-            title: '已刪除全部購物車'
-          });
-        })
-        .catch((error) => {
-          this.isloading = false;
-          Swal.fire({
-            toast: true,
-            position: 'center',
-            showConfirmButton: false,
-            timer: 1500,
-            icon: 'error',
-            title: error.response.data.message
-          });
+      Swal.fire({
+        icon: 'question',
+        title: '刪除所有購物車',
+        text: '確定要刪除所有購物車嗎？',
+        showCancelButton: true
+      })
+        .then((result) => {
+          axios.delete(`${VITE_URL}/api/${VITE_PATH}/carts`)
+            .then((res) => {
+              this.isloading = false;
+              this.getCart();
+              Swal.fire({
+                toast: true,
+                position: 'center',
+                showConfirmButton: false,
+                timer: 1500,
+                icon: 'success',
+                title: '已刪除全部購物車'
+              });
+            })
+            .catch((error) => {
+              this.isloading = false;
+              Swal.fire({
+                toast: true,
+                position: 'center',
+                showConfirmButton: false,
+                timer: 1500,
+                icon: 'error',
+                title: error.response.data.message
+              });
+            });
         });
     },
     updateStatus (carts) {
