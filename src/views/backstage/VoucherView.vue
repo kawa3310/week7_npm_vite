@@ -2,7 +2,7 @@
   <VueLoading :active="isloading" :z-index="1060"></VueLoading>
   <div class="container">
     <div class="text-end mt-4">
-      <button class="btn btn-primary" @click="openModel('new', item)">
+      <button class="btn btn-primary" @click="openModel('new')">
         建立優惠卷
       </button>
     </div>
@@ -23,8 +23,8 @@
               <td>{{ item.percent }}%</td>
               <td>{{ $date.date(item.due_date) }}</td>
               <td>
-                <span class="text-success" v-if="item.is_enabled">啟用</span>
-                <span v-else>未啟用</span>
+                  <span class="text-success" v-if="item.is_enabled === 1">啟用</span>
+                  <span v-else>未啟用</span>
               </td>
               <td>
                 <div class="btn-group">
@@ -76,6 +76,7 @@ export default {
           this.getVoucherData();
         })
         .catch((err) => {
+          this.$router.push('/login');
           Swal.fire({
             toast: true,
             position: 'center',
@@ -84,7 +85,6 @@ export default {
             icon: 'error',
             title: err.response.data.message
           });
-          this.$router.push('/login');
         });
     },
     getVoucherData () {
@@ -110,7 +110,7 @@ export default {
       if (isNew === 'new') {
         this.isNew = true;
         this.tempVoucher = {
-          due_data: new Date().getTime() / 1000
+          due_date: new Date().getTime() / 1000
         };
         this.$refs.voucher.modelOpen();
       } else if (isNew === 'edit') {
@@ -127,6 +127,7 @@ export default {
       let http = 'post';
 
       if (!this.isNew) {
+        this.isloading = true;
         url = `${VITE_URL}/api/${VITE_PATH}/admin/coupon/${this.tempVoucher.id}`;
         http = 'put';
       }
@@ -189,7 +190,7 @@ export default {
   mounted () {
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)kawaToken\s*=\s*([^;]*).*$)|^.*$/, '$1');
     axios.defaults.headers.common.Authorization = token;
-    this.getVoucherData();
+    this.cheakLongin();
   },
   components: {
     VoucherModal,

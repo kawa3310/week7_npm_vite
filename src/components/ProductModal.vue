@@ -36,7 +36,7 @@
                   </div>
                   <img :src="img" alt="img" class="img-fluid">
                 </div>
-                <template v-if="!emitProduct.imagesUrl.length || emitProduct.imagesUrl[emitProduct.imagesUrl - 1]">
+                <template v-if="!emitProduct.imagesUrl.length || emitProduct.imagesUrl[emitProduct.imagesUrl.length - 1]">
                   <button class="btn btn-outline-primary btn-sm d-block w-100"
                     @click="emitProduct.imagesUrl.push('')">新增圖片
                   </button>
@@ -54,43 +54,55 @@
             </div>
 
             <div class="col-sm-8">
-              <div class="mb-3">
-                <label for="title" class="form-label">標題</label>
-                <input v-model="emitProduct.title" id="title" type="text" class="form-control" placeholder="請輸入標題">
-              </div>
-
-              <div class="row">
-                <div class="mb-3 col-md-6">
-                  <label for="category" class="form-label">分類</label>
-                  <input v-model="emitProduct.category" id="category" type="text" class="form-control"
-                    placeholder="請輸入分類">
-                </div>
-                <div class="mb-3 col-md-6">
-                  <label for="unit" class="form-label">單位</label>
-                  <input v-model="emitProduct.unit" id="unit" type="text" class="form-control" placeholder="請輸入單位">
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="mb-3 col-md-6">
-                  <label for="origin_price" class="form-label">原價</label>
-                  <input v-model.number="emitProduct.origin_price" id="origin_price" type="number" min="0"
-                    class="form-control" placeholder="請輸入原價">
-                </div>
-                <div class="mb-3 col-md-6">
-                  <label for="price" class="form-label">售價</label>
-                  <input v-model.number="emitProduct.price" id="price" type="number" min="0" class="form-control"
-                    placeholder="請輸入售價">
-                </div>
-              </div>
+              <VForm ref="form" class="col-md-6" v-slot="{ errors }">
+                  <div class="mb-3">
+                      <label for="title" class="form-label">標題</label>
+                      <VField id="title" name="標題" type="text" class="form-control"
+                          :class="{ 'is-invalid': errors['標題'] }" placeholder="請輸入標題" rules="required"
+                          v-model="emitProduct.title"></VField>
+                      <ErrorMessage name="標題" class="invalid-feedback"></ErrorMessage>
+                  </div>
+                  <div class="row">
+                    <div class="mb-3 col-md-6">
+                      <label for="category" class="form-label">分類</label>
+                      <VField id="category" name="分類" type="text" class="form-control"
+                          :class="{ 'is-invalid': errors['分類'] }" placeholder="請輸入分類" rules="required"
+                          v-model="emitProduct.category"></VField>
+                      <ErrorMessage name="分類" class="invalid-feedback"></ErrorMessage>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                      <label for="unit" class="form-label">單位</label>
+                      <VField id="unit" name="單位" type="text" class="form-control"
+                          :class="{ 'is-invalid': errors['單位'] }" placeholder="請輸入單位" rules="required"
+                          v-model="emitProduct.unit"></VField>
+                      <ErrorMessage name="單位" class="invalid-feedback"></ErrorMessage>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="mb-3 col-md-6">
+                      <label for="origin_price" class="form-label">原價</label>
+                      <VField id="origin_price" name="原價" type="number" min="0" class="form-control"
+                          :class="{ 'is-invalid': errors['原價'] }" placeholder="請輸入原價" rules="required"
+                          v-model.number="emitProduct.origin_price"></VField>
+                      <ErrorMessage name="原價" class="invalid-feedback"></ErrorMessage>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                      <label for="price" class="form-label">售價</label>
+                      <VField id="price" name="售價" type="number" min="0" class="form-control"
+                          :class="{ 'is-invalid': errors['售價'] }" placeholder="請輸入售價" rules="required"
+                          v-model.number="emitProduct.price"></VField>
+                      <ErrorMessage name="售價" class="invalid-feedback"></ErrorMessage>
+                    </div>
+                  </div>
+            </VForm>
               <hr>
-
               <div class="mb-3">
                 <label for="description" class="form-label">產品描述</label>
                 <textarea v-model="emitProduct.description" id="description" type="text" class="form-control"
                   placeholder="請輸入產品描述">
                 </textarea>
               </div>
+
               <div class="mb-3">
                 <label for="content" class="form-label">說明內容</label>
                 <textarea v-model="emitProduct.content" id="description" type="text" class="form-control"

@@ -119,6 +119,7 @@ export default {
           this.isloading = false;
           this.products = res.data.products;
           this.pages = res.data.pagination;
+          console.log(this.products);
         })
         .catch((err) => {
           this.isloading = false;

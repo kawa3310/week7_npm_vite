@@ -188,7 +188,7 @@ export default {
   methods: {
     getDatas () {
       this.isloading = true;
-      axios.get(`${VITE_URL}/api/${VITE_PATH}/products`)
+      axios.get(`${VITE_URL}/api/${VITE_PATH}/products/all`)
         .then((res) => {
           this.isloading = false;
           this.products = res.data.products;
