@@ -21,7 +21,7 @@
                   </tr>
                   <tr>
                     <th>訂單時間</th>
-                    <td>{{ date(emitOrder.create_at) }}</td>
+                    <td>{{ $date.date(emitOrder.create_at) }}</td>
                   </tr>
                   <tr>
                     <th style="width: 100px">收件人</th>
@@ -62,7 +62,7 @@
                     <th>{{  order.product.title }}</th>
                     <td>{{ order.qty }} / {{ order.product.unit }}</td>
                     <td>{{ order.product.final_total }}</td>
-                    <td>{{ currency(order.final_total) }}</td>
+                    <td>{{ $date.currency(order.final_total) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -112,14 +112,6 @@ export default {
     },
     modalClose () {
       this.orderModal.hide();
-    },
-    currency (num) {
-      const n = parseInt(num, 10);
-      return `${n.toFixed(0).replace(/./g, (c, i, a) => (i && c !== '.' && ((a.length - i) % 3 === 0) ? `, ${c}`.replace(/\s/g, '') : c))}`;
-    },
-    date (time) {
-      const localDate = new Date(time * 1000);
-      return localDate.toLocaleDateString();
     }
   },
   mounted () {

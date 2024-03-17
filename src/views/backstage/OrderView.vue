@@ -16,7 +16,7 @@
         <tbody>
           <template  v-for="item in orderData" :key="item.id">
             <tr v-if="orderData.length" :class=" { 'text-secondary': !item.is_paid } ">
-            <td>{{ date(item.create_at) }}</td>
+            <td>{{ $date.date(item.create_at) }}</td>
             <td>
               <span v-text="item.user.email" v-if="item.user"></span>
             </td>
@@ -187,10 +187,6 @@ export default {
             title: err.response.data.message
           });
         });
-    },
-    date (time) {
-      const localDate = new Date(time * 1000);
-      return localDate.toLocaleDateString();
     }
   },
   mounted () {
