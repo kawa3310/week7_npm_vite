@@ -13,7 +13,7 @@
           <RouterLink to="/product" class="nav-link">後台產品列</RouterLink>
           <RouterLink to="/order" class="nav-link">後台訂單</RouterLink>
           <RouterLink to="/voucher" class="nav-link">優惠卷</RouterLink>
-          <button class="btn" @click.prevent="loginOut">登出</button>
+          <a href="#" class="btn nav-link" @click.prevent="loginOut">登出</a>
         </div>
       </div>
     </div>
@@ -31,11 +31,17 @@ export default {
   },
   methods: {
     loginOut () {
-      console.log('沒有');
       axios.post(`${VITE_URL}/logout`)
         .then(() => {
           document.cookie = 'kawaToken=; expires=Thu, 18 Dec 2003 12:00:00 UTC; path=/natural/dist;';
-          alert('登出成功');
+          Swal.fire({
+            toast: true,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'success',
+            title: '已登出'
+          });
           this.$router.push('/login');
         })
         .catch((err) => {
